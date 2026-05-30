@@ -45,25 +45,25 @@ module tt_um_dthusian_camellia (
       'b111: byte_en = 'h80;
       default: byte_en = 'b0;
     endcase
-    case(~uio_in[2:0])
-      'b000: byte_read = read_port[63:56];
-      'b001: byte_read = read_port[55:48];
-      'b010: byte_read = read_port[47:40];
-      'b011: byte_read = read_port[39:32];
-      'b100: byte_read = read_port[31:24];
-      'b101: byte_read = read_port[23:16];
-      'b110: byte_read = read_port[15:8];
-      'b111: byte_read = read_port[7:0];
+    case(uio_in[2:0])
+      'h7: byte_read = read_port[63:56];
+      'h6: byte_read = read_port[55:48];
+      'h5: byte_read = read_port[47:40];
+      'h4: byte_read = read_port[39:32];
+      'h3: byte_read = read_port[31:24];
+      'h2: byte_read = read_port[23:16];
+      'h1: byte_read = read_port[15:8];
+      'h0: byte_read = read_port[7:0];
       default: byte_read = 'b0;
     endcase
   end
 
   assign uo_out = byte_read;
 
-  assign uio_out = 0;
   assign uio_oe  = 0;
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena, clk, rst_n, 1'b0, uio_in, ui_in};
+  wire _unused = &{ena, clk, rst_n, uio_in, ui_in};
+  assign uio_out = {8'b0};
 
 endmodule

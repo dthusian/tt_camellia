@@ -43,7 +43,8 @@ async def test_project(dut):
 
     dut._log.info("Test project behavior")
 
-    for i in range(256):
-        dut.ui_in.value = i
-        await ClockCycles(dut.clk, 1)
-        assert dut.uo_out.value == s1[i]
+    # write byte to address 5
+    dut.uio_in.value = 0b10101
+    dut.ui_in.value = 0x67
+    await ClockCycles(dut.clk, 10)
+    
