@@ -15,7 +15,7 @@ module tt_um_dthusian_camellia (
   input  wire       clk,      // clock
   input  wire       rst_n     // reset_n - low to reset
 );
-  sigma_table st(.addr(ui_in[5:0]), .data(uo_out));
+  sbox sbox(.in(ui_in), .out(uo_out));
 
   assign uio_out = 0;
   assign uio_oe  = 0;
