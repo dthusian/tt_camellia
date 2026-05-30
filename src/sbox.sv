@@ -15,10 +15,10 @@ module sbox_clmul(
       full_product = full_product ^ {2'b0, in_a, 1'b0};
     end
     if(in_b[2]) begin
-      full_product = full_product ^ {3'b0, in_a};
+      full_product = full_product ^ {1'b0, in_a, 2'b0};
     end
     if(in_b[3]) begin
-      full_product = full_product ^ {3'b0, in_a};
+      full_product = full_product ^ {in_a, 3'b0};
     end
   end
 
