@@ -14,7 +14,7 @@ for a brief description of the algorithm. This project supports key sizes 128, 1
 
 ## How to test
 
-Explain how to use your project
+TODO
 
 ## External hardware
 

@@ -17,53 +17,38 @@ module tt_um_dthusian_camellia (
 );
   logic [63:0] write_port;
   logic [63:0] read_port;
-  logic [7:0] byte_read;
-  logic [7:0] byte_en;
+  logic [127:0] key_out;
+  logic [7:0] shift_in;
   
-  assign write_port = {ui_in, ui_in, ui_in, ui_in, ui_in, ui_in, ui_in, ui_in};
+  assign uio_out[5:0] = read_port[45:40];
+  assign write_port = {uio_in, uio_in, uio_in, uio_in, uio_in, uio_in, uio_in, uio_in};
 
-  data_reg r(
+  data_reg data_r(
     .clk(clk),
     .rst(~rst_n),
-    .address(uio_in[3]),
-    .write_en(uio_in[4]),
-    .xor_en(uio_in[5]),
-    .byte_en(byte_en),
-    .in_data(write_port),
-    .out_data(read_port)
+    .address(uio_in[0]),
+    .write_en(uio_in[1]),
+    .shift_en(uio_in[2]),
+    .data_in(write_port),
+    .data_out(read_port),
+    .shift_in(shift_in),
+    .shift_out(uo_out)
   );
 
-  always_comb begin
-    case(uio_in[2:0])
-      'b000: byte_en = 'h1;
-      'b001: byte_en = 'h2;
-      'b010: byte_en = 'h4;
-      'b011: byte_en = 'h8;
-      'b100: byte_en = 'h10;
-      'b101: byte_en = 'h20;
-      'b110: byte_en = 'h40;
-      'b111: byte_en = 'h80;
-      default: byte_en = 'b0;
-    endcase
-    case(uio_in[2:0])
-      'h7: byte_read = read_port[63:56];
-      'h6: byte_read = read_port[55:48];
-      'h5: byte_read = read_port[47:40];
-      'h4: byte_read = read_port[39:32];
-      'h3: byte_read = read_port[31:24];
-      'h2: byte_read = read_port[23:16];
-      'h1: byte_read = read_port[15:8];
-      'h0: byte_read = read_port[7:0];
-      default: byte_read = 'b0;
-    endcase
-  end
+  key_reg key_r(
+    .latch_in(read_port),
+    .latch_ena(uio_in[7:2]),
+    .key_sel(uio_in[1:0]),
+    .key_out(key_out)
+  );
 
-  assign uo_out = byte_read;
+  assign uio_out[6] = &{key_out};
+  assign uio_out[7] = &{key_out};
 
+  assign shift_in = uio_in[3] ? ui_in : uo_out ^ ui_in; 
   assign uio_oe  = 0;
 
   // List all unused inputs to prevent warnings
   wire _unused = &{ena, clk, rst_n, uio_in, ui_in};
-  assign uio_out = {8'b0};
 
 endmodule
