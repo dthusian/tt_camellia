@@ -17,7 +17,9 @@ module tt_um_dthusian_camellia (
 );
   logic [63:0] write_port;
   logic [63:0] read_port;
-  logic [127:0] key_out;
+  logic [127:0] key_l;
+  logic [127:0] key_a;
+  logic [63:0] key_out;
   logic [7:0] shift_in;
   
   assign uio_out[5:0] = read_port[45:40];
@@ -35,10 +37,27 @@ module tt_um_dthusian_camellia (
     .shift_out(uo_out)
   );
 
-  key_reg key_r(
-    .latch_in(read_port),
-    .latch_ena(uio_in[7:2]),
-    .key_sel(uio_in[1:0]),
+  key_reg key_r1(
+    .clk(clk),
+    .rst(~rst_n),
+    .shift_en(uio_in[4]),
+    .shift_in(uo_out),
+    .key_out(key_l)
+  );
+
+  key_reg key_r2(
+    .clk(clk),
+    .rst(~rst_n),
+    .shift_en(uio_in[5]),
+    .shift_in(uo_out),
+    .key_out(key_a)
+  );
+
+  key_shifter key_shift(
+    .key_l(key_l),
+    .key_a(key_a),
+    .word_sel(uio_in[7:6]),
+    .shift(uio_in[2:0]),
     .key_out(key_out)
   );
 

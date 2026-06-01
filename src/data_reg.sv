@@ -28,22 +28,7 @@ module data_reg(
           data[63:0] <= data_in;
         end
       end else if(shift_en) begin
-        data[127:120] <= shift_in;
-        data[119:112] <= data[127:120];
-        data[111:104] <= data[119:112];
-        data[103:96] <= data[111:104];
-        data[95:88] <= data[103:96];
-        data[87:80] <= data[95:88];
-        data[79:72] <= data[87:80];
-        data[71:64] <= data[79:72];
-        data[63:56] <= data[71:64];
-        data[55:48] <= data[63:56];
-        data[47:40] <= data[55:48];
-        data[39:32] <= data[47:40];
-        data[31:24] <= data[39:32];
-        data[23:16] <= data[31:24];
-        data[15:8] <= data[23:16];
-        data[7:0] <= data[15:8];
+        data <= {shift_in, data[127:8]};
       end
     end
   end
