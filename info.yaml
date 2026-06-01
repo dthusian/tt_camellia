@@ -18,11 +18,12 @@ project:
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
     - "tt_um_dthusian_camellia.sv"
+    - "camellia_engine.sv"
+    - "control.sv"
     - "sbox.sv"
     - "sigma_table.sv"
     - "data_reg.sv"
     - "key_reg.sv"
-    - "key_shifter.sv"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
@@ -48,12 +49,12 @@ pinout:
   uo[7]: "dout[7]"
 
   # Bidirectional pins
-  uio[0]: "cmd_cfg"
+  uio[0]: "test_mode"
   uio[1]: "cmd_key"
-  uio[2]: "cmd_dat"
-  uio[3]: "ready"
-  uio[4]: ""
-  uio[5]: ""
+  uio[2]: "cmd_data"
+  uio[3]: "cmd_encrypt"
+  uio[4]: "cmd_decrypt"
+  uio[5]: "ready"
   uio[6]: ""
   uio[7]: ""
 

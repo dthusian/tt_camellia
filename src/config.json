@@ -36,6 +36,7 @@
   "//": "Project-specific configs added",
   "SYNTH_AUTONAME": true,
   "SYNTH_SHOW": true,
+  "SYNTH_HIERARCHY_MODE": "keep",
 
   "//": "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
   "//": "!!! DO NOT CHANGE ANYTHING BELOW THIS POINT !!!",

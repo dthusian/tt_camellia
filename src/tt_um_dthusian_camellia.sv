@@ -15,57 +15,24 @@ module tt_um_dthusian_camellia (
   input  wire       clk,      // clock
   input  wire       rst_n     // reset_n - low to reset
 );
-  logic [63:0] write_port;
-  logic [63:0] read_port;
-  logic [127:0] key_l;
-  logic [127:0] key_a;
-  logic [63:0] key_out;
-  logic [7:0] shift_in;
-  
-  assign uio_out[5:0] = read_port[45:40];
-  assign write_port = {uio_in, uio_in, uio_in, uio_in, uio_in, uio_in, uio_in, uio_in};
-
-  data_reg data_r(
+  camellia_engine engine(
     .clk(clk),
-    .rst(~rst_n),
-    .address(uio_in[0]),
-    .write_en(uio_in[1]),
-    .shift_en(uio_in[2]),
-    .data_in(write_port),
-    .data_out(read_port),
-    .shift_in(shift_in),
-    .shift_out(uo_out)
+    .rst_n(rst_n),
+    
+    .test_mode(uio_in[0]),
+    .cmd_key(uio_in[1]),
+    .cmd_data(uio_in[2]),
+    .cmd_encrypt(uio_in[3]),
+    .cmd_decrypt(uio_in[4]),
+    .ready(uio_out[5]),
+
+    .data_in(ui_in),
+    .data_out(uo_out)
   );
 
-  key_reg key_r1(
-    .clk(clk),
-    .rst(~rst_n),
-    .shift_en(uio_in[4]),
-    .shift_in(uo_out),
-    .key_out(key_l)
-  );
-
-  key_reg key_r2(
-    .clk(clk),
-    .rst(~rst_n),
-    .shift_en(uio_in[5]),
-    .shift_in(uo_out),
-    .key_out(key_a)
-  );
-
-  key_shifter key_shift(
-    .key_l(key_l),
-    .key_a(key_a),
-    .word_sel(uio_in[7:6]),
-    .shift(uio_in[2:0]),
-    .key_out(key_out)
-  );
-
-  assign uio_out[6] = &{key_out};
-  assign uio_out[7] = &{key_out};
-
-  assign shift_in = uio_in[3] ? ui_in : uo_out ^ ui_in; 
-  assign uio_oe  = 0;
+  assign uio_out[4:0] = 'b0;
+  assign uio_out[7:6] = 'b0;
+  assign uio_oe = 'b00100000; // only in
 
   // List all unused inputs to prevent warnings
   wire _unused = &{ena, clk, rst_n, uio_in, ui_in};
