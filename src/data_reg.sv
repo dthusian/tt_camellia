@@ -5,13 +5,9 @@ module data_reg(
 
   input  logic [1:0]  address,
   input  logic        write_en,
-  input  logic        shift_en,
 
   input  logic [31:0] data_in,
-  output logic [31:0] data_out,
-
-  input  logic [7:0] shift_in,
-  output logic [7:0] shift_out
+  output logic [31:0] data_out
 );
 
   logic [127:0] data;
@@ -30,19 +26,14 @@ module data_reg(
   endgenerate
 
   always_comb begin
-    if(shift_en) begin
-      data_write = {shift_in, data[127:8]};
-      data_write_en = 'b1111;
-    end else begin
-      data_write = {data_in, data_in, data_in, data_in};
-      case({write_en, address})
-        'h0: data_write_en = 'b0001;
-        'h1: data_write_en = 'b0010;
-        'h2: data_write_en = 'b0100;
-        'h3: data_write_en = 'b1000;
-        default: data_write_en = 'b0000;
-      endcase
-    end
+    data_write = {data_in, data_in, data_in, data_in};
+    case({write_en, address})
+      'b100: data_write_en = 'b0001;
+      'h101: data_write_en = 'b0010;
+      'h110: data_write_en = 'b0100;
+      'h111: data_write_en = 'b1000;
+      default: data_write_en = 'b0000;
+    endcase
   end
 
   always_comb begin
@@ -53,8 +44,4 @@ module data_reg(
       'h3: data_out = data[127:96];
     endcase
   end
-
-  assign shift_out = data[7:0];
-
-
 endmodule

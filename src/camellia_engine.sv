@@ -16,8 +16,13 @@ module camellia_engine(
 );
   logic [63:0] tmp_control;
 
-  logic [31:0] data_read;
-  logic [31:0] data_write;
+  logic [31:0] s0;
+  logic [31:0] s1;
+  logic [31:0] s2;
+
+  always_ff @(posedge clk) begin
+    s0 <= {data_in, s0[31:8]};
+  end
 
   placeholder_control ctl(
     .clk(clk),
@@ -29,22 +34,29 @@ module camellia_engine(
     .clk(clk),
     .address(tmp_control[1:0]),
     .write_en(tmp_control[2]),
-    .shift_en(tmp_control[3]),
-    .data_in(data_write),
-    .data_out(data_read),
-    .shift_in(data_in),
-    .shift_out(data_out)
+    .data_in(s0),
+    .data_out(s1)
   );
 
   key_reg key_r(
     .clk(clk),
     .latch_en(tmp_control[11:4]),
-    .latch_in(data_read),
+    .latch_in(s1),
     .key_idx(tmp_control[12]),
     .shift_idx(tmp_control[15:13]),
     .word_idx(tmp_control[17:16]),
-    .key_out(data_write)
+    .key_out(s2)
   );
+
+  always_comb begin
+    case({tmp_control[3], tmp_control[18]})
+      'b00: data_out = s2[7:0];
+      'b01: data_out = s2[15:8];
+      'b10: data_out = s2[23:16];
+      'b11: data_out = s2[31:24];
+      default: data_out = 'b0;
+    endcase
+  end
 
   assign ready = 'b0;
 

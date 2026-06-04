@@ -1,15 +1,5 @@
 `default_nettype none
 
-module tristate_buf #(
-  parameter WIDTH = 16
-)(
-  input  logic [WIDTH-1:0] x,
-  input  logic             en,
-  inout  logic [WIDTH-1:0] y
-);
-  assign y = en ? x : {WIDTH{1'bz} };
-endmodule
-
 module key_reg(
   input  logic clk,
 
@@ -32,9 +22,6 @@ module key_reg(
   logic [2:0] bus1_addr;
   logic [2:0] bus2_addr;
   logic [3:0] bus3_addr;
-  logic [7:0] bus1_sel;
-  logic [7:0] bus2_sel;
-  logic [15:0] bus3_sel;
 
 `ifdef SYNTHESIS
   generate
@@ -150,15 +137,11 @@ module key_reg(
     if(latch_en[7]) keys[127:96] = latch_in;
   end
 
-  generate
-    for(genvar i = 0; i < 8; i++) begin
-      tristate_buf key1(.x(keys[i*32+15:i*32+0]), .en(bus1_sel[i]), .y(bus1));
-      tristate_buf key2(.x(keys[i*32+31:i*32+16]), .en(bus2_sel[i]), .y(bus2));
-    end
-    for(genvar j = 0; j < 16; j++) begin
-      tristate_buf #(.WIDTH(4)) key3(.x(keys[j*16+3:j*16]), .en(bus3_sel[j]), .y(bus3));
-    end
-  endgenerate
+  always_comb begin
+    bus1 = keys[bus1_addr * 32 +: 16];
+    bus2 = keys[bus2_addr * 32 + 16 +: 16];
+    bus3 = keys[bus3_addr * 16 +: 4];
+  end
 `endif
 
   // Address decoder
@@ -170,13 +153,6 @@ module key_reg(
     bus2_addr[1:0] = word_idx - shift_idx[2:1] + shift_idx[0] + 2'b01;
     bus3_addr[3] = key_idx;
     bus3_addr[2:0] = {1'b0, word_idx} - shift_idx + 3'b10;
-
-    bus1_sel = 'b0;
-    bus1_sel[bus1_addr] = 1'b1;
-    bus2_sel = 'b0;
-    bus2_sel[bus2_addr] = 1'b1;
-    bus3_sel = 'b0;
-    bus3_sel[bus3_addr] = 1'b1;
 
     half_swap = shift_idx[0];
   end

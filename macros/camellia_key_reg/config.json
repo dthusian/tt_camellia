@@ -1,0 +1,35 @@
+{
+  "DESIGN_NAME": "camellia_key_reg",
+
+  "//": "Global Librelane flow options",
+  "RUN_LINTER": false,
+  "RUN_KLAYOUT_XOR": false,
+  "RUN_KLAYOUT_DRC": true,
+  "RUN_CTS": 1,
+
+  "//": "Synthesis options",
+  "VERILOG_FILES": ["dir::camellia_key_reg.sv"],
+  "CLOCK_PORT": "clk",
+  "SYNTH_AUTONAME": true,
+  "SYNTH_SHOW": true,
+
+  "//": "Floorplan options",
+  "DIE_AREA": "0 0 100.00 150.00",
+  "FP_SIZING": "absolute",
+  "FP_IO_HLENGTH": 2,
+  "FP_IO_VLENGTH": 2,
+  "FP_PDN_VPITCH": 38.87,
+  "FP_PDN_MULTILAYER": 0,
+
+  "//": "PnR options",
+  "PL_TARGET_DENSITY_PCT": 60,
+  "CLOCK_PERIOD": 1000,
+  "PL_RESIZER_HOLD_SLACK_MARGIN": 0.1,
+  "GRT_RESIZER_HOLD_SLACK_MARGIN": 0.05,
+  "GRT_ALLOW_CONGESTION": 1,
+
+  "//": "Repair and streamout options",
+  "MAGIC_DEF_LABELS": 0,
+  "DESIGN_REPAIR_BUFFER_OUTPUT_PORTS": 0,
+  "MAGIC_WRITE_LEF_PINONLY": 1
+}
