@@ -17,5 +17,6 @@ export LIBRELANE_TAG=3.0.3
 pip install librelane==$LIBRELANE_TAG
 
 python3 tt/tt_tool.py --create-user-config
+python3 gen_manual_placements.py
 python3 tt/tt_tool.py --harden
 python3 tt/tt_tool.py --print-warnings
