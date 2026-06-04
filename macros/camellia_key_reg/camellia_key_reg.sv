@@ -1,8 +1,6 @@
 `default_nettype none
 
 module camellia_key_reg(
-  input  logic clk,
-  
   input  logic [7:0]  latch_en,
   input  logic [31:0] latch_in,
 
@@ -18,8 +16,8 @@ module camellia_key_reg(
     for(genvar i = 0; i < 256; i++) begin : mpgen1
       sky130_fd_sc_hd__dlxtp_1 mplatch(
         .Q(keys[i]),
-        .D(latch_in[i >> 5]),
-        .GATE(latch_en[i & 'b11111])
+        .D(latch_in[i & 'b11111]),
+        .GATE(latch_en[i >> 5])
       );
     end
 
