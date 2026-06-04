@@ -12,11 +12,13 @@ module camellia_key_reg(
   output logic [3:0]  bus3
 );
   logic [255:0] keys;
+  logic [255:0] key_write;
+  assign key_write = {latch_in, keys[255:32]};
   generate
     for(genvar i = 0; i < 256; i++) begin : mpgen1
       sky130_fd_sc_hd__dlxtp_1 mplatch(
         .Q(keys[i]),
-        .D(latch_in[i & 'b11111]),
+        .D(key_write[i]),
         .GATE(latch_en[i >> 5])
       );
     end

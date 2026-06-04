@@ -8,7 +8,12 @@ source ttsetup/venv/bin/activate
 pip install librelane==$LIBRELANE_TAG
 rm -rf "$RUNDIR"
 mkdir -p "$RUNDIR"
+
+cd macros/camellia_key_reg
+python3 do_manual_placement.py
+cd ../..
+
 python3 -m librelane --docker-no-tty --dockerized \
   --pdk-root "$PDK_ROOT" \
   --run-tag macro_key_reg --force-run-dir "$RUNDIR" \
-  macros/camellia_key_reg/config.json
+  macros/camellia_key_reg/config_placed.json
