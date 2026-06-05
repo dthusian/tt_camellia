@@ -3,7 +3,7 @@ project:
   title:        "Camellia Crypto Engine"      # Project title
   author:       "Adrian Wu"      # Your name
   discord:      "dthusian"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  "A hardware implementation of the Camellia block cipher, supporting 128, 192, and 256-bit keys"      # One line description of what your project does
+  description:  "A hardware implementation of the Camellia-128 block cipher"      # One line description of what your project does
   language:     "SystemVerilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
   clock_hz:     1000000       # Clock frequency in Hz (or 0 if not applicable)
 

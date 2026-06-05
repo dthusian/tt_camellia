@@ -11,27 +11,34 @@ module data_reg(
 );
 
   logic [127:0] data;
-  logic [127:0] data_write;
   logic [3:0] data_write_en;
 
+`ifdef SYNTHESIS
   generate
     for(genvar i = 0; i < 128; i++) begin
       sky130_fd_sc_hd__edfxtp_1 flop(
         .Q(data[i]),
         .CLK(clk),
-        .D(data_write[i]),
+        .D(data_in[i & 'b11111]),
         .DE(data_write_en[i[6:5]])
       );
     end
   endgenerate
+`else
+  always_ff @(posedge clk) begin
+    if(data_write_en[0]) data[31:0] <= data_in;
+    if(data_write_en[1]) data[63:32] <= data_in;
+    if(data_write_en[2]) data[95:64] <= data_in;
+    if(data_write_en[3]) data[127:96] <= data_in;
+  end
+`endif
 
   always_comb begin
-    data_write = {data_in, data_in, data_in, data_in};
     case({write_en, address})
       'b100: data_write_en = 'b0001;
-      'h101: data_write_en = 'b0010;
-      'h110: data_write_en = 'b0100;
-      'h111: data_write_en = 'b1000;
+      'b101: data_write_en = 'b0010;
+      'b110: data_write_en = 'b0100;
+      'b111: data_write_en = 'b1000;
       default: data_write_en = 'b0000;
     endcase
   end

@@ -9,8 +9,8 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-This project implements the Camellia block cipher in hardware. See https://www.rfc-editor.org/info/rfc3713/
-for a brief description of the algorithm. This project supports key sizes 128, 192, 256, and cipher modes ECB, CBC, CFB, OFB, and CTR.
+This project implements the Camellia-128 block cipher in hardware. See https://www.rfc-editor.org/info/rfc3713/
+for a brief description of the algorithm. This project only supports a key size of 128.
 
 ## How to test
 

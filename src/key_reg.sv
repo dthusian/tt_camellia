@@ -14,8 +14,6 @@ module key_reg(
 );
   // Key latches
   logic [255:0] keys;
-  // Tri-state bus to read 16+16+4 bits
-  // This solution uses 1.25 tri-state buffers per key bit
   logic [15:0] bus1;
   logic [15:0] bus2;
   logic [3:0] bus3;
@@ -25,14 +23,14 @@ module key_reg(
 
 `ifdef SYNTHESIS
   generate
-    for(genvar i = 0; i < 256; i++) begin : mpgen1
+    for(genvar i = 0; i < 256; i++) begin
       sky130_fd_sc_hd__dlxtp_1 mplatch(
         .Q(keys[i]),
-        .D(latch_in[i >> 5]),
-        .GATE(latch_en[i & 'b11111])
+        .D(latch_in[i & 'b11111]),
+        .GATE(latch_en[i >> 5])
       );
     end
-    for(genvar i = 0; i < 16; i++) begin : mpgen2
+    for(genvar i = 0; i < 16; i++) begin
       logic bus1_mux1;
       logic bus1_mux2;
       logic bus2_mux1;
@@ -76,7 +74,7 @@ module key_reg(
       assign bus1[i] = bus1_addr[2] ? bus1_mux1 : bus1_mux2;
       assign bus2[i] = bus2_addr[2] ? bus2_mux1 : bus2_mux2;
     end
-    for(genvar i = 0; i < 4; i++) begin : mpgen3
+    for(genvar i = 0; i < 4; i++) begin
       logic [3:0] bus3_mux;
       sky130_fd_sc_hd__mux4_1 mpmux5(
         .X(bus3_mux[0]),
