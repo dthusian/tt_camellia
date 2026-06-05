@@ -3,7 +3,8 @@
 module data_reg(
   input  logic clk,
 
-  input  logic [1:0]  address,
+  input  logic [1:0]  read_addr,
+  input  logic [1:0]  write_addr,
   input  logic        write_en,
 
   input  logic [31:0] data_in,
@@ -34,7 +35,7 @@ module data_reg(
 `endif
 
   always_comb begin
-    case({write_en, address})
+    case({write_en, write_addr})
       'b100: data_write_en = 'b0001;
       'b101: data_write_en = 'b0010;
       'b110: data_write_en = 'b0100;
@@ -44,7 +45,7 @@ module data_reg(
   end
 
   always_comb begin
-    case(address)
+    case(read_addr)
       'h0: data_out = data[31:0];
       'h1: data_out = data[63:32];
       'h2: data_out = data[95:64];

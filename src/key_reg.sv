@@ -35,6 +35,7 @@ module key_reg(
       logic bus1_mux2;
       logic bus2_mux1;
       logic bus2_mux2;
+
       sky130_fd_sc_hd__mux4_1 mpmux1(
         .X(bus1_mux1),
         .A0(keys[0*32+i]),
@@ -53,6 +54,13 @@ module key_reg(
         .S0(bus1_addr[0]),
         .S1(bus1_addr[1])
       );
+      sky130_fd_sc_hd__mux2_1 mpmux10(
+        .X(bus1[i]),
+        .A0(bus1_mux1),
+        .A1(bus1_mux2),
+        .S(bus1_addr[2])
+      );
+
       sky130_fd_sc_hd__mux4_1 mpmux3(
         .X(bus2_mux1),
         .A0(keys[0*32+i+16]),
@@ -71,8 +79,12 @@ module key_reg(
         .S0(bus2_addr[0]),
         .S1(bus2_addr[1])
       );
-      assign bus1[i] = bus1_addr[2] ? bus1_mux1 : bus1_mux2;
-      assign bus2[i] = bus2_addr[2] ? bus2_mux1 : bus2_mux2;
+      sky130_fd_sc_hd__mux2_1 mpmux11(
+        .X(bus2[i]),
+        .A0(bus2_mux1),
+        .A1(bus2_mux2),
+        .S(bus2_addr[2])
+      );
     end
     for(genvar i = 0; i < 4; i++) begin
       logic [3:0] bus3_mux;
