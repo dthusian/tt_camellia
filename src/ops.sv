@@ -4,13 +4,14 @@ module ops(
 
   // Control path
   input  logic        wordsel, // Only valid for F. 0 = Low-half 1 = High-half
-  input  logic [1:0]  opcode, // 00 = F, 01 = xor, 10 = FL, 11 = FLINV
+  input  logic [2:0]  opcode, // 00 = F, 01 = XOR, 10 = FLA, 11 = FLB
 
   // Data path
   input  logic [31:0] key,
   input  logic [31:0] data,
   output logic [31:0] result
 );
+  // F-function
   logic [31:0] xored;
   assign xored = key ^ data;
 
@@ -54,13 +55,25 @@ module ops(
     p3[63:32] = p2[31:0];
     p3[31:0] = p2[63:32];
   end
-  
+
+  // FLA function
+  logic [31:0] fla_unrot;
+  logic [31:0] fla;
+  assign fla_unrot = data & key;
+  assign fla = {fla_unrot[30:0], fla_unrot[31]};
+
+  // FLB function
+  logic [31:0] flb;
+  assign flb = data | key;
+
+  // Output muxing
   always_comb begin
     case(opcode)
-      'b00: result = wordsel ? p3[63:32] : p3[31:0]; // todo
+      'b00: result = wordsel ? p3[63:32] : p3[31:0];
       'b01: result = xored;
-      'b10: result = 'b0; // todo
-      'b11: result = 'b0; // todo
+      'b10: result = fla;
+      'b11: result = flb;
     endcase
   end
+
 endmodule
