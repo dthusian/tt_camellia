@@ -24,16 +24,16 @@ module camellia_engine(
   logic [31:0] result;
 
   logic       input_mux;
-  logic [2:0] read_addr1;
-  logic [1:0] read_addr2;
-  logic [2:0] write_addr;
-  logic       write_en;
+  logic [2:0] data_read_addr1;
+  logic [1:0] data_read_addr2;
+  logic [2:0] data_write_addr;
+  logic       data_write_en;
   logic [7:0] key_latch_en;
-  logic       key_idx;
-  logic [2:0] shift_idx;
-  logic [1:0] word_idx;
-  logic [1:0] subcycle;
-  logic [2:0] opcode;
+  logic [3:0] key_read_addr;
+  logic [2:0] key_shift_idx;
+  logic       key_save_en;
+  logic [1:0] op_subcycle;
+  logic [2:0] op_opcode;
   logic [1:0] output_mux;
 
   // Input shift-reg
@@ -50,56 +50,57 @@ module camellia_engine(
     .cmd_data,
     .cmd_encrypt,
     .cmd_decrypt,
-    .read_addr1,
-    .read_addr2,
 
     .ready,
     .input_mux,
-    .write_addr,
-    .write_en,
+    .data_read_addr1,
+    .data_read_addr2,
+    .data_write_addr,
+    .data_write_en,
     .key_latch_en,
-    .key_idx,
-    .shift_idx,
-    .word_idx,
-    .subcycle,
-    .opcode,
+    .key_read_addr,
+    .key_shift_idx,
+    .key_save_en,
+    .op_subcycle,
+    .op_opcode,
     .output_mux
   );
 
   data_reg data_r(
     .clk,
-    .read_addr1,
+    .read_addr1(data_read_addr1),
     .read_data1(data_read1),
-    .read_addr2({2'b11, read_addr2[0]}),
+    .read_addr2({2'b11, data_read_addr2[0]}),
     .read_data2(data_read2),
-    .write_addr,
-    .write_en,
+    .write_addr(data_write_addr),
+    .write_en(data_write_en),
     .write_data(input_mux ? input_shift : result)
   );
 
   key_reg key_r(
+    .clk,
     .latch_en(key_latch_en),
     .latch_in(data_read1),
-    .key_idx,
-    .shift_idx,
-    .word_idx,
+    .read_addr(key_read_addr),
+    .shift_idx(key_shift_idx),
+    .save_en(key_save_en),
     .key_out(key_read)
   );
 
   sigma_table sig_table(
-    .addr({key_idx, word_idx}),
+    .addr(key_read_addr[2:0]),
     .data(sigma_read)
   );
 
   assign data_a = data_read1;
-  assign data_b = read_addr2 == 2'b11 ? sigma_read :
-    read_addr2 == 2'b10 ? key_read :
+  assign data_b = data_read_addr2 == 2'b11 ? sigma_read :
+    data_read_addr2 == 2'b10 ? key_read :
     data_read2;
 
   ops op(
     .clk,
-    .subcycle,
-    .opcode,
+    .subcycle(op_subcycle),
+    .opcode(op_opcode),
     .data_a,
     .data_b,
     .result

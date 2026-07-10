@@ -14,16 +14,16 @@ module control(
   
   output wire       ready,
   output wire       input_mux,
-  output wire [2:0] read_addr1,
-  output wire [1:0] read_addr2,
-  output wire [2:0] write_addr,
-  output wire       write_en,
+  output wire [2:0] data_read_addr1,
+  output wire [1:0] data_read_addr2,
+  output wire [2:0] data_write_addr,
+  output wire       data_write_en,
   output wire [7:0] key_latch_en,
-  output wire       key_idx,
-  output wire [2:0] shift_idx,
-  output wire [1:0] word_idx,
-  output wire [1:0] subcycle,
-  output wire [2:0] opcode,
+  output wire [3:0] key_read_addr,
+  output wire [2:0] key_shift_idx,
+  output wire       key_save_en,
+  output wire [1:0] op_subcycle,
+  output wire [2:0] op_opcode,
   output wire [1:0] output_mux
 );
   logic [11:0] ctl;
@@ -31,17 +31,17 @@ module control(
     ctl <= {ctl[10:0], test_mode};
   end
 
-  assign read_addr1 = ctl[2:0];
-  assign read_addr2 = ctl[4:3];
-  assign write_addr = ctl[2:0];
-  assign write_en = ctl[5];
-  assign key_latch_en = ctl[11:4];
-  assign key_idx = ctl[6];
-  assign shift_idx = ctl[9:7];
-  assign word_idx = ctl[11:10];
-  assign subcycle = ctl[7:6];
-  assign opcode = ctl[5:3];
-  assign ready = cmd_key;
   assign input_mux = cmd_data;
+  assign data_read_addr1 = ctl[2:0];
+  assign data_read_addr2 = ctl[4:3];
+  assign data_write_addr = ctl[2:0];
+  assign data_write_en = ctl[5];
+  assign key_latch_en = ctl[11:4];
+  assign key_read_addr = ctl[10:7];
+  assign key_shift_idx = ctl[11:9];
+  assign key_save_en = ctl[6];
+  assign op_subcycle = ctl[7:6];
+  assign op_opcode = ctl[5:3];
+  assign ready = cmd_key;
   assign output_mux = {cmd_encrypt, cmd_decrypt};
 endmodule
