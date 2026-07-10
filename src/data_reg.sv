@@ -16,12 +16,12 @@ module data_reg(
 
 `ifdef SYNTHESIS
   generate
-    for(genvar i = 0; i < 128; i++) begin
+    for(genvar i = 0; i < 192; i++) begin
       sky130_fd_sc_hd__edfxtp_1 flop(
         .Q(data[i]),
         .CLK(clk),
         .D(data_in[i & 'b11111]),
-        .DE(data_write_en[i[6:5]])
+        .DE(data_write_en[i[7:5]])
       );
     end
   endgenerate
