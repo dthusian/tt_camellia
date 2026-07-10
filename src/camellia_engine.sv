@@ -1,20 +1,20 @@
 `default_nettype none
 
 module camellia_engine(
-  input  logic clk,
-  input  logic rst_n,
+  input  wire clk,
+  input  wire rst_n,
 
-  input  logic test_mode,
-  input  logic cmd_key,
-  input  logic cmd_data,
-  input  logic cmd_encrypt,
-  input  logic cmd_decrypt,
-  output logic ready,
+  input  wire test_mode,
+  input  wire cmd_key,
+  input  wire cmd_data,
+  input  wire cmd_encrypt,
+  input  wire cmd_decrypt,
+  output wire ready,
 
-  input  logic [7:0] data_in,
-  output logic [7:0] data_out
+  input  wire [7:0] data_in,
+  output var  [7:0] data_out
 );
-  logic [63:0] tmp_control;
+  logic [23:0] tmp_control;
 
   logic [31:0] s0;
   logic [31:0] s1;
@@ -25,23 +25,27 @@ module camellia_engine(
     s0 <= {data_in, s0[31:8]};
   end
 
-  placeholder_control ctl(
+  control ctl(
     .clk(clk),
-    .in(test_mode),
+    .rst(~rst_n),
+    .test_mode(test_mode),
+    .cmd_key(cmd_key),
+    .cmd_data(cmd_data),
+    .cmd_encrypt(cmd_encrypt),
+    .cmd_decrypt(cmd_decrypt),
     .ctl(tmp_control)
   );
 
   data_reg data_r(
     .clk(clk),
-    .read_addr(tmp_control[1:0]),
-    .write_addr(tmp_control[1:0]),
+    .read_addr(tmp_control[2:0]),
+    .write_addr(tmp_control[2:0]),
     .write_en(tmp_control[2]),
     .data_in(s0),
     .data_out(s1)
   );
 
   key_reg key_r(
-    .clk(clk),
     .latch_en(tmp_control[11:4]),
     .latch_in(s1),
     .key_idx(tmp_control[12]),
@@ -52,10 +56,10 @@ module camellia_engine(
 
   ops op(
     .clk(clk),
-    .wordsel(tmp_control[21]),
-    .opcode(tmp_control[20:19]),
-    .key(s2),
-    .data(s1),
+    .subcycle(tmp_control[23:22]),
+    .opcode(tmp_control[21:19]),
+    .data_b(s2),
+    .data_a(s1),
     .result(s3)
   );
 

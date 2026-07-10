@@ -1,8 +1,8 @@
 `default_nettype none
 
 module sigma_table(
-  input logic [1:0] addr,
-  output logic [63:0] data 
+  input  wire [1:0]  addr,
+  output var  [63:0] data 
 );
   always_comb begin
     case (addr)

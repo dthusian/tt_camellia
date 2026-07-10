@@ -1,0 +1,8 @@
+src/tt_um_dthusian_camellia.sv
+src/camellia_engine.sv
+src/control.sv
+src/data_reg.sv
+src/key_reg.sv
+src/ops.sv
+src/sbox.sv
+src/sigma_table.sv

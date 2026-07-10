@@ -1,9 +1,9 @@
 `default_nettype none
 
 module sbox_clmul(
-  input  logic [3:0] in_a,
-  input  logic [3:0] in_b,
-  output logic [3:0] out
+  input  wire [3:0] in_a,
+  input  wire [3:0] in_b,
+  output wire [3:0] out
 );
   logic [6:0] full_product;
   always_comb begin
@@ -26,8 +26,8 @@ module sbox_clmul(
 endmodule
 
 module sbox_gf2_4_inv(
-  input  logic [3:0] in,
-  output logic [3:0] out
+  input  wire [3:0] in,
+  output var  [3:0] out
 );
   always_comb begin
     case (in)
@@ -47,13 +47,14 @@ module sbox_gf2_4_inv(
       'b1101: out = 'b0100;
       'b1110: out = 'b0011;
       'b1111: out = 'b1000;
+      default: out = 4'bxxxx;
     endcase
   end
 endmodule
 
 module sbox_g(
-  input  logic [7:0] in,
-  output logic [7:0] out
+  input  wire [7:0] in,
+  output wire [7:0] out
 );
   logic [3:0] ph;
   assign ph = in[7:4];
@@ -89,8 +90,8 @@ module sbox_g(
 endmodule
 
 module sbox (
-  input  logic [7:0] in,
-  output logic [7:0] out
+  input  wire [7:0] in,
+  output wire [7:0] out
 );
 
   logic [7:0] f0;

@@ -1,16 +1,14 @@
 `default_nettype none
 
 module key_reg(
-  input  logic clk,
+  input  wire [7:0]  latch_en,
+  input  wire [31:0] latch_in,
 
-  input  logic [7:0]  latch_en,
-  input  logic [31:0] latch_in,
+  input  wire        key_idx,
+  input  wire [2:0]  shift_idx,
+  input  wire [1:0]  word_idx,
 
-  input  logic        key_idx,
-  input  logic [2:0]  shift_idx,
-  input  logic [1:0]  word_idx,
-
-  output logic [31:0] key_out
+  output wire [31:0] key_out
 );
   // Key latches
   logic [255:0] keys;
@@ -148,9 +146,9 @@ module key_reg(
   end
 
   always_comb begin
-    bus1 = keys[bus1_addr * 32 +: 16];
-    bus2 = keys[bus2_addr * 32 + 16 +: 16];
-    bus3 = keys[bus3_addr * 16 +: 4];
+    bus1 = keys[{bus1_addr, 5'b0} +: 16];
+    bus2 = keys[{bus2_addr, 5'b0} + 16 +: 16];
+    bus3 = keys[{bus3_addr, 4'b0} +: 4];
   end
 `endif
 
@@ -160,7 +158,7 @@ module key_reg(
     bus1_addr[2] = key_idx;
     bus1_addr[1:0] = word_idx - shift_idx[2:1];
     bus2_addr[2] = key_idx;
-    bus2_addr[1:0] = word_idx - shift_idx[2:1] + shift_idx[0] + 2'b01;
+    bus2_addr[1:0] = word_idx - shift_idx[2:1] + {1'b0, shift_idx[0]} + 2'b01;
     bus3_addr[3] = key_idx;
     bus3_addr[2:0] = {1'b0, word_idx} - shift_idx + 3'b10;
 
@@ -181,6 +179,7 @@ module key_reg(
       'b101: shifted = {bus3[2:0], swapped[31:3]};
       'b110: shifted = {bus3[1:0], swapped[31:2]};
       'b111: shifted = {bus3[0], swapped[31:1]};
+      default: shifted = 32'hxxxxxxxx;
     endcase
   end
   assign key_out = shifted;

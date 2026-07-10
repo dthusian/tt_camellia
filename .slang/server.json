@@ -1,0 +1,8 @@
+{
+  "index": [
+    {
+      "dirs": ["src/"]
+    }
+  ],
+  "build": "src/tt_camellia.f"
+}

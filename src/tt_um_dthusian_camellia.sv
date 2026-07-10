@@ -35,6 +35,7 @@ module tt_um_dthusian_camellia (
   assign uio_oe = 'b00100000; // only in
 
   // List all unused inputs to prevent warnings
+  // slang lint_off unused-net
   wire _unused = &{ena, clk, rst_n, uio_in, ui_in};
 
 endmodule
