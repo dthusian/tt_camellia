@@ -89,11 +89,12 @@ module key_reg(
 
   // Shifter module
   logic [3:0] buf1;
-  always_ff @(posedge clk) begin
-    if(save_en) begin
-      buf1 <= read_data[3:0];
-    end
-  end
+  dff_en #(.WIDTH(4)) buf1_ff(
+    .q(buf1),
+    .clk,
+    .d(read_data[3:0]),
+    .de(save_en)
+  );
 
   logic [1:0] shift_ctl;
   logic [15:0] shifted1;
@@ -108,7 +109,7 @@ module key_reg(
       'b101: shift_ctl = 'b10;
       'b110: shift_ctl = 'b01;
       'b111: shift_ctl = 'b00;
-      default: shift_ctl = 16'hxxxx; // unreachable
+      default: shift_ctl = 2'bxx; // unreachable
     endcase
 
     shifted = shift_idx == 3'b000 ? read_data : shifted1;
@@ -124,10 +125,11 @@ module key_reg(
   );
 
   logic [15:0] buf2;
-  always_ff @(posedge clk) begin
-    if(save_en) begin
-      buf2 <= shifted;
-    end
-  end
+  dff_en #(.WIDTH(16)) buf2_ff(
+    .q(buf2),
+    .clk,
+    .d(shifted),
+    .de(save_en)
+  );
   assign key_out = {buf2, shifted};
 endmodule

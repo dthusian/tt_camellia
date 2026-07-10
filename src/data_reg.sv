@@ -14,32 +14,15 @@ module data_reg(
 );
 
   logic [191:0] data;
-  logic [5:0] data_write_en;
 
-`ifdef SYNTHESIS
-  generate
-    for(genvar i = 0; i < 192; i++) begin
-      sky130_fd_sc_hd__edfxtp_1 flop(
-        .Q(data[i]),
-        .CLK(clk),
-        .D(write_data[i & 'b11111]),
-        .DE(data_write_en[i[7:5]])
-      );
-    end
-  endgenerate
-`else
   generate
     for(genvar i = 0; i < 6; i++) begin : g
-      always_ff @(posedge clk) begin
-        if(data_write_en[i]) data[i * 32 +: 32] <= write_data;
-      end
-    end
-  endgenerate
-`endif
-
-  generate
-    for(genvar i = 0; i < 6; i++) begin : h
-      assign data_write_en[i] = i == write_addr && write_en;
+      dff_en #(.WIDTH(32)) flop(
+        .q(data[i*32 +: 32]),
+        .clk,
+        .d(write_data),
+        .de(i == write_addr && write_en)
+      );
     end
   endgenerate
 

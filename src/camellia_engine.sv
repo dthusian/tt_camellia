@@ -70,7 +70,7 @@ module camellia_engine(
     .clk,
     .read_addr1(data_read_addr1),
     .read_data1(data_read1),
-    .read_addr2({2'b11, data_read_addr2[0]}),
+    .read_addr2({2'b10, data_read_addr2[0]}),
     .read_data2(data_read2),
     .write_addr(data_write_addr),
     .write_en(data_write_en),
