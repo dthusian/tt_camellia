@@ -25,55 +25,6 @@ module key_reg(
         .GATE(latch_en[i >> 5])
       );
     end
-    for(genvar i = 0; i < 16; i++) begin : h
-      logic [3:0] mux1;
-
-      sky130_fd_sc_hd__mux4_1 mpmux1(
-        .X(mux1[0]),
-        .A0(keys[0*16+i]),
-        .A1(keys[1*16+i]),
-        .A2(keys[2*16+i]),
-        .A3(keys[3*16+i]),
-        .S0(read_addr[0]),
-        .S1(read_addr[1])
-      );
-      sky130_fd_sc_hd__mux4_1 mpmux2(
-        .X(mux1[1]),
-        .A0(keys[4*16+i]),
-        .A1(keys[5*16+i]),
-        .A2(keys[6*16+i]),
-        .A3(keys[7*16+i]),
-        .S0(read_addr[0]),
-        .S1(read_addr[1])
-      );
-      sky130_fd_sc_hd__mux4_1 mpmux3(
-        .X(mux1[2]),
-        .A0(keys[8*16+i]),
-        .A1(keys[9*16+i]),
-        .A2(keys[10*16+i]),
-        .A3(keys[11*16+i]),
-        .S0(read_addr[0]),
-        .S1(read_addr[1])
-      );
-      sky130_fd_sc_hd__mux4_1 mpmux4(
-        .X(mux1[3]),
-        .A0(keys[12*16+i]),
-        .A1(keys[13*16+i]),
-        .A2(keys[14*16+i]),
-        .A3(keys[15*16+i]),
-        .S0(read_addr[0]),
-        .S1(read_addr[1])
-      );
-      sky130_fd_sc_hd__mux4_1 mpmux5(
-        .X(read_data[i]),
-        .A0(mux1[0]),
-        .A1(mux1[1]),
-        .A2(mux1[2]),
-        .A3(mux1[3]),
-        .S0(read_addr[2]),
-        .S1(read_addr[3])
-      );
-    end
   endgenerate
 `else
   always_latch begin
@@ -86,11 +37,55 @@ module key_reg(
     if(latch_en[6]) keys[223:192] = latch_in;
     if(latch_en[7]) keys[255:224] = latch_in;
   end
-
-  always_comb begin
-    read_data = keys[{read_addr, 4'b0} +: 16];
-  end
 `endif
+
+  // Read muxes
+  logic [15:0] mux1 [3:0];
+  mux4 #(.WIDTH(16)) mpmux1 (
+    .x(mux1[0]),
+    .a0(keys[0*16 +: 16]),
+    .a1(keys[1*16 +: 16]),
+    .a2(keys[2*16 +: 16]),
+    .a3(keys[3*16 +: 16]),
+    .s0(read_addr[0]),
+    .s1(read_addr[1])
+  );
+  mux4 #(.WIDTH(16)) mpmux2(
+    .x(mux1[1]),
+    .a0(keys[4*16 +: 16]),
+    .a1(keys[5*16 +: 16]),
+    .a2(keys[6*16 +: 16]),
+    .a3(keys[7*16 +: 16]),
+    .s0(read_addr[0]),
+    .s1(read_addr[1])
+  );
+  mux4 #(.WIDTH(16)) mpmux3(
+    .x(mux1[2]),
+    .a0(keys[8*16  +: 16]),
+    .a1(keys[9*16  +: 16]),
+    .a2(keys[10*16 +: 16]),
+    .a3(keys[11*16 +: 16]),
+    .s0(read_addr[0]),
+    .s1(read_addr[1])
+  );
+  mux4 #(.WIDTH(16)) mpmux4(
+    .x(mux1[3]),
+    .a0(keys[12*16 +: 16]),
+    .a1(keys[13*16 +: 16]),
+    .a2(keys[14*16 +: 16]),
+    .a3(keys[15*16 +: 16]),
+    .s0(read_addr[0]),
+    .s1(read_addr[1])
+  );
+  mux4 #(.WIDTH(16)) mpmux5(
+    .x(read_data),
+    .a0(mux1[0]),
+    .a1(mux1[1]),
+    .a2(mux1[2]),
+    .a3(mux1[3]),
+    .s0(read_addr[2]),
+    .s1(read_addr[3])
+  );
 
   // Shifter module
   logic [3:0] buf1;
@@ -100,20 +95,33 @@ module key_reg(
     end
   end
 
+  logic [1:0] shift_ctl;
+  logic [15:0] shifted1;
   logic [15:0] shifted;
   always_comb begin
     case(shift_idx)
-      'b000: shifted = read_data;
-      'b001: shifted = {buf1[0], read_data[15:1]};
-      'b010: shifted = {buf1[1:0], read_data[15:2]};
-      'b011: shifted = {buf1[2:0], read_data[15:3]};
-      'b100: shifted = {buf1, read_data[15:4]};
-      'b101: shifted = {buf1[2:0], read_data[15:3]};
-      'b110: shifted = {buf1[1:0], read_data[15:2]};
-      'b111: shifted = {buf1[0], read_data[15:1]};
-      default: shifted = 16'hxxxx; // unreachable
+      'b000: shift_ctl = 'b00;
+      'b001: shift_ctl = 'b00;
+      'b010: shift_ctl = 'b01;
+      'b011: shift_ctl = 'b10;
+      'b100: shift_ctl = 'b11;
+      'b101: shift_ctl = 'b10;
+      'b110: shift_ctl = 'b01;
+      'b111: shift_ctl = 'b00;
+      default: shift_ctl = 16'hxxxx; // unreachable
     endcase
+
+    shifted = shift_idx == 3'b000 ? read_data : shifted1;
   end
+  mux4 #(.WIDTH(16)) shift_mux(
+    .x(shifted1),
+    .a0({buf1[0], read_data[15:1]}),
+    .a1({buf1[1:0], read_data[15:2]}),
+    .a2({buf1[2:0], read_data[15:3]}),
+    .a3({buf1, read_data[15:4]}),
+    .s0(shift_ctl[0]),
+    .s1(shift_ctl[1])
+  );
 
   logic [15:0] buf2;
   always_ff @(posedge clk) begin

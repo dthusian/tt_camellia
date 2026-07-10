@@ -1,33 +1,5 @@
 `default_nettype none
 
-module mux4(
-  input wire a0,
-  input wire a1,
-  input wire a2,
-  input wire a3,
-  input wire s0,
-  input wire s1,
-  output wire q
-);
-  `ifdef SYNTHESIS
-    sky130_fd_sc_hd__mux4_1 m(
-      .X(q),
-      .A0(a0),
-      .A1(a1),
-      .A2(a2),
-      .A3(a3),
-      .S0(s0),
-      .S1(s1)
-    );
-  `else
-    assign q =
-      {s1, s0} == 'b00 ? a0 :
-      {s1, s0} == 'b01 ? a1 :
-      {s1, s0} == 'b10 ? a2 :
-      a3;
-  `endif
-endmodule
-
 module ops(
   input  wire        clk,
 
@@ -54,20 +26,11 @@ module ops(
         .a3(data_b[(i + 24) % 32]),
         .s0(opcode[0] & opcode[2]),
         .s1(opcode[1] & opcode[2]),
-        .q(b_shift[i])
+        .x(b_shift[i])
       );
     end
   endgenerate
   assign xored = b_shift ^ data_a;
-  /*
-  always_comb begin
-    case(opcode)
-      'b101: xored = data_a ^ {data_b[7:0], data_b[31:8]};
-      'b110: xored = data_a ^ {data_b[15:0], data_b[31:16]};
-      'b111: xored = data_a ^ {data_b[23:0], data_b[31:24]};
-      default: xored = data_a ^ data_b;
-    endcase
-  end*/
 
   // S-boxes
   logic [1:0] sbox_ctl;

@@ -36,7 +36,8 @@
   "//": "Project-specific configs added",
   "SYNTH_AUTONAME": true,
   "SYNTH_SHOW": true,
-  "SYNTH_HIERARCHY_MODE": "keep",
+  "SYNTH_HIERARCHY_MODE": "flatten",
+  "SYNTH_KEEP_HIERARCHY_MIN_COST": 32,
 
   "//": "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
   "//": "!!! DO NOT CHANGE ANYTHING BELOW THIS POINT !!!",
