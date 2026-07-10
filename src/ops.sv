@@ -46,7 +46,7 @@ module ops(
   logic [31:0] b_shift;
   logic [31:0] xored;
   generate
-    for(genvar i = 0; i < 32; i++) begin
+    for(genvar i = 0; i < 32; i++) begin : g
       mux4 m(
         .a0(data_b[i]),
         .a1(data_b[(i + 8) % 32]),

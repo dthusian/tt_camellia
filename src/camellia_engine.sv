@@ -14,65 +14,104 @@ module camellia_engine(
   input  wire [7:0] data_in,
   output var  [7:0] data_out
 );
-  logic [23:0] tmp_control;
+  logic [31:0] input_shift;
+  logic [31:0] data_read1;
+  logic [31:0] data_read2;
+  logic [31:0] key_read;
+  logic [31:0] sigma_read;
+  logic [31:0] data_a;
+  logic [31:0] data_b;
+  logic [31:0] result;
 
-  logic [31:0] s0;
-  logic [31:0] s1;
-  logic [31:0] s2;
-  logic [31:0] s3;
+  logic       input_mux;
+  logic [2:0] read_addr1;
+  logic [1:0] read_addr2;
+  logic [2:0] write_addr;
+  logic       write_en;
+  logic [7:0] key_latch_en;
+  logic       key_idx;
+  logic [2:0] shift_idx;
+  logic [1:0] word_idx;
+  logic [1:0] subcycle;
+  logic [2:0] opcode;
+  logic [1:0] output_mux;
 
+  // Input shift-reg
   always_ff @(posedge clk) begin
-    s0 <= {data_in, s0[31:8]};
+    input_shift <= {data_in, input_shift[31:8]};
   end
 
   control ctl(
-    .clk(clk),
+    .clk,
     .rst(~rst_n),
-    .test_mode(test_mode),
-    .cmd_key(cmd_key),
-    .cmd_data(cmd_data),
-    .cmd_encrypt(cmd_encrypt),
-    .cmd_decrypt(cmd_decrypt),
-    .ctl(tmp_control)
+
+    .test_mode,
+    .cmd_key,
+    .cmd_data,
+    .cmd_encrypt,
+    .cmd_decrypt,
+    .read_addr1,
+    .read_addr2,
+
+    .ready,
+    .input_mux,
+    .write_addr,
+    .write_en,
+    .key_latch_en,
+    .key_idx,
+    .shift_idx,
+    .word_idx,
+    .subcycle,
+    .opcode,
+    .output_mux
   );
 
   data_reg data_r(
-    .clk(clk),
-    .read_addr(tmp_control[2:0]),
-    .write_addr(tmp_control[2:0]),
-    .write_en(tmp_control[2]),
-    .data_in(s0),
-    .data_out(s1)
+    .clk,
+    .read_addr1,
+    .read_data1(data_read1),
+    .read_addr2({2'b11, read_addr2[0]}),
+    .read_data2(data_read2),
+    .write_addr,
+    .write_en,
+    .write_data(input_mux ? input_shift : result)
   );
 
   key_reg key_r(
-    .latch_en(tmp_control[11:4]),
-    .latch_in(s1),
-    .key_idx(tmp_control[12]),
-    .shift_idx(tmp_control[15:13]),
-    .word_idx(tmp_control[17:16]),
-    .key_out(s2)
+    .latch_en(key_latch_en),
+    .latch_in(data_read1),
+    .key_idx,
+    .shift_idx,
+    .word_idx,
+    .key_out(key_read)
   );
 
+  sigma_table sig_table(
+    .addr({key_idx, word_idx}),
+    .data(sigma_read)
+  );
+
+  assign data_a = data_read1;
+  assign data_b = read_addr2 == 2'b11 ? sigma_read :
+    read_addr2 == 2'b10 ? key_read :
+    data_read2;
+
   ops op(
-    .clk(clk),
-    .subcycle(tmp_control[23:22]),
-    .opcode(tmp_control[21:19]),
-    .data_b(s2),
-    .data_a(s1),
-    .result(s3)
+    .clk,
+    .subcycle,
+    .opcode,
+    .data_a,
+    .data_b,
+    .result
   );
 
   always_comb begin
-    case({tmp_control[3], tmp_control[18]})
-      'b00: data_out = s3[7:0];
-      'b01: data_out = s3[15:8];
-      'b10: data_out = s3[23:16];
-      'b11: data_out = s3[31:24];
-      default: data_out = 'b0;
+    case(output_mux)
+      'b00: data_out = data_read1[7:0];
+      'b01: data_out = data_read1[15:8];
+      'b10: data_out = data_read1[23:16];
+      'b11: data_out = data_read1[31:24];
+      default: data_out = 8'bx; // unreachable
     endcase
   end
-
-  assign ready = 'b0;
-
 endmodule
