@@ -17,7 +17,7 @@
 
   "//": "CLOCK_PERIOD - Increase this in case you are getting setup time violations.",
   "//": "The value is in nanoseconds, so 20ns == 50MHz.",
-  "CLOCK_PERIOD": 1000,
+  "CLOCK_PERIOD": 40,
 
   "//": "Hold slack margin - Increase them in case you are getting hold violations.",
   "PL_RESIZER_HOLD_SLACK_MARGIN": 0.1,
@@ -37,7 +37,15 @@
   "SYNTH_AUTONAME": true,
   "SYNTH_SHOW": true,
   "SYNTH_HIERARCHY_MODE": "flatten",
-  "SYNTH_KEEP_HIERARCHY_MIN_COST": 32,
+  "SYNTH_KEEP_HIERARCHY_MODULES": [
+    "camellia_engine",
+    "ops",
+    "sbox",
+    "key_reg",
+    "data_reg",
+    "sigma_table",
+    "control"
+  ],
 
   "//": "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
   "//": "!!! DO NOT CHANGE ANYTHING BELOW THIS POINT !!!",
