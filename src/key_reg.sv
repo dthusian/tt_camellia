@@ -136,49 +136,25 @@ module key_reg(
   end
 
   // Shifter module
-  logic swap_halves;
-  logic [2:0] shift_ctl;
   logic [31:0] swapped;
-  logic [35:0] shifted0;
-  logic [33:0] shifted1;
-  logic [31:0] shifted2;
+  logic [2:0] shift_ctl;
+  logic [35:0] shift_view;
+  logic [31:0] shifted;
+  assign swapped = shift_idx[0] ? {read_data1, read_data2} : {read_data2, read_data1};
   always_comb begin
-    swap_halves = shift_idx[0];
     case(shift_idx)
-      'b000: shift_ctl = 'b100;
-      'b001: shift_ctl = 'b000;
-      'b010: shift_ctl = 'b001;
-      'b011: shift_ctl = 'b010;
-      'b100: shift_ctl = 'b011;
-      'b101: shift_ctl = 'b010;
-      'b110: shift_ctl = 'b001;
-      'b111: shift_ctl = 'b000;
-      default: shift_ctl = 2'bxx; // unreachable
+      'b000: shift_ctl = 'b000;
+      'b001: shift_ctl = 'b001;
+      'b010: shift_ctl = 'b010;
+      'b011: shift_ctl = 'b011;
+      'b100: shift_ctl = 'b100;
+      'b101: shift_ctl = 'b011;
+      'b110: shift_ctl = 'b010;
+      'b111: shift_ctl = 'b001;
+      default: shift_ctl = 3'bx; // unreachable
     endcase
+    shift_view = {read_data3, swapped};
+    shifted = shift_view[shift_ctl +: 32];
   end
-  mux2 #(.WIDTH(32)) kmux1 (
-    .x(swapped),
-    .a0({read_data2, read_data1}),
-    .a1({read_data1, read_data2}),
-    .s0(swap_halves)
-  );
-  assign shifted0 = {read_data3, swapped};
-  mux2 #(.WIDTH(34)) kmux2 (
-    .x(shifted1),
-    .a0(shifted0[34:1]),
-    .a1(shifted0[35:2]),
-    .s0(shift_ctl[0])
-  );
-  mux2 #(.WIDTH(32)) kmux3 (
-    .x(shifted2),
-    .a0(shifted1[31:0]),
-    .a1(shifted1[33:2]),
-    .s0(shift_ctl[1])
-  );
-  mux2 #(.WIDTH(32)) kmux4 (
-    .x(key_out),
-    .a0(shifted2),
-    .a1(swapped),
-    .s0(shift_ctl[2])
-  );
+  assign key_out = shifted;
 endmodule
