@@ -16,28 +16,15 @@ module key_reg(
   logic [255:0] keys;
   logic [15:0] read_data;
 
-`ifdef SYNTHESIS
   generate
-    for(genvar i = 0; i < 256; i++) begin : g
-      sky130_fd_sc_hd__dlxtp_1 mplatch(
-        .Q(keys[i]),
-        .D(latch_in[i & 'b11111]),
-        .GATE(latch_en[i >> 5])
+    for(genvar i = 0; i < 8; i++) begin : g
+      latch #(.WIDTH(32)) key_latch(
+        .q(keys[i*32 +: 32]),
+        .en(latch_en[i]),
+        .d(latch_in)
       );
     end
   endgenerate
-`else
-  always_latch begin
-    if(latch_en[0]) keys[31:0] = latch_in;
-    if(latch_en[1]) keys[63:32] = latch_in;
-    if(latch_en[2]) keys[95:64] = latch_in;
-    if(latch_en[3]) keys[127:96] = latch_in;
-    if(latch_en[4]) keys[159:128] = latch_in;
-    if(latch_en[5]) keys[191:160] = latch_in;
-    if(latch_en[6]) keys[223:192] = latch_in;
-    if(latch_en[7]) keys[255:224] = latch_in;
-  end
-`endif
 
   // Read muxes
   logic [15:0] mux1 [3:0];

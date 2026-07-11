@@ -15,7 +15,7 @@ module camellia_engine(
   output var  [7:0] data_out
 );
   // data path
-  logic [31:0] input_shift;
+  logic [31:0] input_word;
   logic [31:0] data_read1;
   logic [31:0] data_read2;
   logic [31:0] key_result;
@@ -29,18 +29,17 @@ module camellia_engine(
   logic [1:0] data_fwd;
   logic       data_write_addr;
   logic       data_write_en;
+  logic [3:0] data_write_bs;
   logic [7:0] key_latch_en;
   logic [3:0] key_read_addr;
   logic [2:0] key_shift_idx;
   logic       key_save_en;
+  logic [2:0] sigma_read_addr;
   logic [1:0] op_subcycle;
   logic [2:0] op_opcode;
   logic [1:0] output_mux;
 
-  // Input shift-reg
-  always_ff @(posedge clk) begin
-    input_shift <= {data_in, input_shift[31:8]};
-  end
+  assign input_word = {data_in, data_in, data_in, data_in};
 
   control ctl(
     .clk,
@@ -59,10 +58,12 @@ module camellia_engine(
     .data_fwd,
     .data_write_addr,
     .data_write_en,
+    .data_write_bs,
     .key_latch_en,
     .key_read_addr,
     .key_shift_idx,
     .key_save_en,
+    .sigma_read_addr,
     .op_subcycle,
     .op_opcode,
     .output_mux
@@ -79,7 +80,7 @@ module camellia_engine(
   );
 
   sigma_table sig_table(
-    .addr(key_read_addr[2:0]),
+    .addr(sigma_read_addr),
     .data(sigma_result)
   );
 
@@ -94,7 +95,8 @@ module camellia_engine(
     .fwd(data_fwd),
     .write_addr(data_write_addr),
     .write_en(data_write_en),
-    .write_data(input_mux ? input_shift : result)
+    .write_bs(data_write_bs),
+    .write_data(input_mux ? input_word : result)
   );
 
   ops op(

@@ -15,6 +15,7 @@ module data_reg(
 
   input  wire        write_addr, // r4-r5
   input  wire        write_en,
+  input  wire [3:0]  write_bs,
   input  wire [31:0] write_data
 );
   // Data reg is composed of 6x 32-bit words: 2 flops and 4 latches
@@ -32,11 +33,29 @@ module data_reg(
       );
     end
     for(genvar i = 0; i < 2; i++) begin : h
-      dff_en #(.WIDTH(32)) flops (
-        .q(scratch[i]),
+      dff_en #(.WIDTH(8)) flop0 (
+        .q(scratch[i][0 +: 8]),
         .clk,
-        .d(write_data),
-        .de(i == write_addr && write_en)
+        .d(write_data[0 +: 8]),
+        .de(i == write_addr && write_en && write_bs[0])
+      );
+      dff_en #(.WIDTH(8)) flop1 (
+        .q(scratch[i][8 +: 8]),
+        .clk,
+        .d(write_data[8 +: 8]),
+        .de(i == write_addr && write_en && write_bs[1])
+      );
+      dff_en #(.WIDTH(8)) flop2 (
+        .q(scratch[i][16 +: 8]),
+        .clk,
+        .d(write_data[16 +: 8]),
+        .de(i == write_addr && write_en && write_bs[2])
+      );
+      dff_en #(.WIDTH(8)) flop3 (
+        .q(scratch[i][24 +: 8]),
+        .clk,
+        .d(write_data[24 +: 8]),
+        .de(i == write_addr && write_en && write_bs[3])
       );
     end
   endgenerate
