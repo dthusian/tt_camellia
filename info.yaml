@@ -26,6 +26,7 @@ project:
     - "key_reg.sv"
     - "ops.sv"
     - "cells/mux4.sv"
+    - "cells/mux2.sv"
     - "cells/dff_en.sv"
     - "cells/latch.sv"
 

@@ -1,3 +1,4 @@
+`default_nettype none
 
 module dff_en #(
   parameter WIDTH = 1

@@ -1,8 +1,43 @@
 `default_nettype none
 
-// slang lint_off unused-port
+/*
+# Microcode summary
 
-// placeholder control module to ensure other logic is not optimized away
+fa:
+r4 <- sb1 r1 kr
+r5 <- sb2 r0 kr
+r4 <- xs1 r4 r5
+r5 <- xs2 r5 r4
+r4 <- xs3 r4 r5
+r5 <- xs3 r5 r4
+r4 <- xor r2 r4
+r5 <- xor r3 r5
+r2, r3 <- r4, r5
+
+fb:
+r4 <- sb1 r3 kr
+r5 <- sb2 r2 kr
+r4 <- xs1 r4 r5
+r5 <- xs2 r5 r4
+r4 <- xs3 r4 r5
+r5 <- xs3 r5 r4
+r4 <- xor r2 r4
+r5 <- xor r3 r5
+r0, r1 <- r4, r5
+
+fl:
+r4 <- fla r3 kr
+r4 <- xor r2 r4
+r5 <- flb r4 kr
+r5 <- xor r3 r5
+r2, r3 <- r4, r5
+r5 <- flb r0 kr
+r5 <- xor r1 r5
+r4 <- fla r5 kr
+r4 <- xor r0 r4
+r0, r1 <- r4, r5
+*/
+
 module control(
   input  wire clk,
   input  wire rst,
@@ -21,9 +56,9 @@ module control(
   output wire       data_write_en,
   output wire [3:0] data_write_bs,
   output wire [7:0] key_latch_en,
-  output wire [3:0] key_read_addr,
+  output wire       key_key_idx,
+  output wire [1:0] key_word_idx,
   output wire [2:0] key_shift_idx,
-  output wire       key_save_en,
   output wire [2:0] sigma_read_addr,
   output wire [1:0] op_subcycle,
   output wire [2:0] op_opcode,
@@ -42,9 +77,9 @@ module control(
   assign data_write_en = ctl[5];
   assign data_write_bs = ctl[13:10];
   assign key_latch_en = ctl[11:4];
-  assign key_read_addr = ctl[10:7];
+  assign key_key_idx = ctl[10];
+  assign key_word_idx = ctl[8:7];
   assign key_shift_idx = ctl[11:9];
-  assign key_save_en = ctl[6];
   assign sigma_read_addr = ctl[14:12];
   assign op_subcycle = ctl[7:6];
   assign op_opcode = ctl[5:3];

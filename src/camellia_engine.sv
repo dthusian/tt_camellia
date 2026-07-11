@@ -31,9 +31,9 @@ module camellia_engine(
   logic       data_write_en;
   logic [3:0] data_write_bs;
   logic [7:0] key_latch_en;
-  logic [3:0] key_read_addr;
+  logic       key_key_idx;
+  logic [1:0] key_word_idx;
   logic [2:0] key_shift_idx;
-  logic       key_save_en;
   logic [2:0] sigma_read_addr;
   logic [1:0] op_subcycle;
   logic [2:0] op_opcode;
@@ -60,9 +60,9 @@ module camellia_engine(
     .data_write_en,
     .data_write_bs,
     .key_latch_en,
-    .key_read_addr,
+    .key_key_idx,
+    .key_word_idx,
     .key_shift_idx,
-    .key_save_en,
     .sigma_read_addr,
     .op_subcycle,
     .op_opcode,
@@ -70,12 +70,11 @@ module camellia_engine(
   );
 
   key_reg key_r(
-    .clk,
     .latch_en(key_latch_en),
     .latch_in(data_read1),
-    .read_addr(key_read_addr),
+    .key_idx(key_key_idx),
+    .word_idx(key_word_idx),
     .shift_idx(key_shift_idx),
-    .save_en(key_save_en),
     .key_out(key_result)
   );
 

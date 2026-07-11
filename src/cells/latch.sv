@@ -1,3 +1,5 @@
+`default_nettype none
+
 module latch #(
   parameter WIDTH = 1
 ) (

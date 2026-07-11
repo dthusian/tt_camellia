@@ -1,3 +1,4 @@
+`default_nettype none
 
 module mux4 #(
   parameter WIDTH = 1
