@@ -32,7 +32,7 @@ module tt_um_dthusian_camellia (
 
   assign uio_out[4:0] = 'b0;
   assign uio_out[7:6] = 'b0;
-  assign uio_oe = 'b00100000; // only in
+  assign uio_oe = 'b00100000; // only ready is output
 
   // List all unused inputs to prevent warnings
   // slang lint_off unused-net
