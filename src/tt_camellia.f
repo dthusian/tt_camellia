@@ -8,3 +8,4 @@ src/sbox.sv
 src/sigma_table.sv
 src/cells/mux4.sv
 src/cells/dff_en.sv
+src/cells/latch.sv

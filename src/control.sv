@@ -16,7 +16,8 @@ module control(
   output wire       input_mux,
   output wire [2:0] data_read_addr1,
   output wire [1:0] data_read_addr2,
-  output wire [2:0] data_write_addr,
+  output wire [1:0] data_fwd,
+  output wire       data_write_addr,
   output wire       data_write_en,
   output wire [7:0] key_latch_en,
   output wire [3:0] key_read_addr,
@@ -34,7 +35,8 @@ module control(
   assign input_mux = cmd_data;
   assign data_read_addr1 = ctl[2:0];
   assign data_read_addr2 = ctl[4:3];
-  assign data_write_addr = ctl[2:0];
+  assign data_fwd = ctl[7:6];
+  assign data_write_addr = ctl[1];
   assign data_write_en = ctl[5];
   assign key_latch_en = ctl[11:4];
   assign key_read_addr = ctl[10:7];
