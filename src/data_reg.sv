@@ -18,7 +18,7 @@ module data_reg(
   input  wire [3:0]  write_bs,
   input  wire [31:0] write_data
 );
-  // Data reg is composed of 6x 32-bit words: 2 flops and 4 latches
+  // Data reg is composed of 6x 32-bit words: 2 flops (r4-r5) and 4 latches (r0-r3)
   // We also perform the routing for the key and sigma results
 
   logic [31:0] data [3:0];
