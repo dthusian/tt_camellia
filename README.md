@@ -1,42 +1,65 @@
-![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
+# TinyTapeout Camellia-128
 
-# Tiny Tapeout Verilog Project Template
+This project implements the Camellia-128 block cipher in hardware. See https://www.rfc-editor.org/info/rfc3713/ for a 
+specification of the algorithm.
 
-- [Read the documentation for project](docs/info.md)
+This project is currently being validated, and as such has not been submitted to any TinyTapeout shuttle.
 
-## What is Tiny Tapeout?
+## Pinout
+- `clk`: Clock input
+- `rst_n`: Active-low reset input
+- `din[7:0]`: Data/key input
+- `dout[7:0]`: Data output
+- `test_mode`: HIGH enables test mode
+- `cmd_key`: Begin key input
+- `cmd_data`: Begin data input/output
+- `cmd_encrypt`: Begin encryption
+- `cmd_decrypt`: Begin decryption
+- `ready`: Ready to accept commands
 
-Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.
+## Functional Description
 
-To learn more and get started, visit https://tinytapeout.com.
+All inputs (including `rst_n`) are synchronized to the `clk` signal. Commands can be initiated
+whenever `ready` is high, by pulling one of the `cmd_*` pins high for 1 cycle. If the command involves
+data transfer, the first cycle of data transfer occurs on the cycle after `cmd_*` is high.
+Another command may not be issued until `ready` goes from low to high.
 
-## Set up your Verilog project
+### `cmd_key`
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Adapt the testbench to your design. See [test/README.md](test/README.md) for more information.
+Inputs a key into the key register and perform key scheduling.
 
-The GitHub action will automatically build the ASIC files using [LibreLane](https://www.zerotoasiccourse.com/terminology/librelane/).
+Input each byte of the 128-bit key into `din[7:0]` on each following cycle, with
+a 2 cycle wait after 8 bytes. During this command, values on `dout[7:0]` should be ignored.
 
-## Enable GitHub actions to build the results page
+This command takes 80 cycles to complete, including the cycles when data is transferred.
 
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
+TODO: insert a waveform here
 
-## Resources
+### `cmd_data`
 
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://www.tinytapeout.com/guides/local-hardening/)
+Inputs data into the data register.
 
-## What next?
+Input each byte of the data block into `din[7:0]` on each following cycle, with
+a 2 cycle wait after 8 bytes. Simultaneously, each cycle outputs on `dout[7:0]` a byte from
+the result of encryption or decryption from the last command. If the last command
+is not `cmd_encrypt` or `cmd_decrypt`, the values on `dout[7:0]` should be ignored.
 
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@tinytapeout](https://twitter.com/tinytapeout)
-  - Bluesky [@tinytapeout.com](https://bsky.app/profile/tinytapeout.com)
+This command takes 20 cycles to complete, including the cycles when data is transferred.
+
+TODO: insert a waveform here
+
+### `cmd_encrypt`
+
+Encrypts the data inside the data register, with the key inside the key register.
+
+No data is transferred during this command.
+
+This command takes 242 cycles to complete.
+
+### `cmd_decrypt`
+
+Decrypts the data inside the data register, with the key inside the key register.
+
+No data is transferred during this command.
+
+This command takes 242 cycles to complete.
